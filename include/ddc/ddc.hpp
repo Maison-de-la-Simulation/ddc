@@ -27,6 +27,10 @@
 #include "ddc/reducer.hpp"
 #include "ddc/transform_reduce.hpp"
 
+// Distribution
+#include "ddc/distribution.hpp"
+#include "ddc/distributed_field.hpp"
+
 // PDI wrapper
 #if defined(DDC_BUILD_PDI_WRAPPER)
 #include "ddc/pdi.hpp"
