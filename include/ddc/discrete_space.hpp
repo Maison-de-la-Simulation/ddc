@@ -15,6 +15,14 @@
 #include "ddc/discrete_domain.hpp"
 #include "ddc/discrete_space.hpp"
 
+#if defined(__HIPCC__)
+#define CURRENT_KOKKOS_SPACE Kokkos::Experimental::HIPSpace
+#elif defined(__CUDA_ARCH__)
+#define CURRENT_KOKKOS_SPACE Kokkos::CudaSpace
+#else
+#define CURRENT_KOKKOS_SPACE Kokkos::HostSpace
+#endif
+
 namespace detail {
 
 template <class IDim, class MemorySpace>
@@ -146,3 +154,33 @@ DDC_INLINE_FUNCTION typename IDim::template Impl<MemorySpace> const& discrete_sp
 {
     return detail::DiscreteSpaceGetter<IDim, MemorySpace>::get();
 }
+
+template <class DDim, class Tag = class DefaultTag>
+class global_discrete_space_id
+{
+public:
+    using discrete_dimension_type = DDim;
+
+    using discrete_element_type = DiscreteElement<discrete_dimension_type>;
+
+    using discrete_domain_type = DiscreteDomain<discrete_dimension_type>;
+
+    using discrete_vector_type = DiscreteVector<discrete_dimension_type>;
+
+    template <class MemorySpace = CURRENT_KOKKOS_SPACE>
+    inline typename DDim::template Impl<MemorySpace> const& get()
+    {
+        return discrete_space<DDim, MemorySpace>();
+    }
+
+    template <class MemorySpace = CURRENT_KOKKOS_SPACE>
+    inline typename DDim::template Impl<MemorySpace> const* operator*()
+    {
+        return &get<MemorySpace>();
+    }
+    template <class MemorySpace = CURRENT_KOKKOS_SPACE>
+    inline typename DDim::template Impl<MemorySpace> const* operator->()
+    {
+        return &get<MemorySpace>();
+    }
+};

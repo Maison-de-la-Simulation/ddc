@@ -252,37 +252,34 @@ std::ostream& operator<<(std::ostream& out, DDimImpl const& mesh)
 }
 
 /// @brief Lower bound index of the mesh
-template <class DDim>
-DDC_INLINE_FUNCTION std::
-        enable_if_t<is_uniform_sampling_v<DDim>, typename DDim::continuous_element_type>
-        origin() noexcept
+template <class CDim>
+DDC_INLINE_FUNCTION typename UniformPointSampling<CDim>::continuous_element_type origin(
+        global_discrete_space_id<UniformPointSampling<CDim>> dim) noexcept
 {
-    return discrete_space<DDim>().origin();
+    return dim->origin();
 }
 
 /// @brief Lower bound index of the mesh
-template <class DDim>
-DDC_INLINE_FUNCTION std::
-        enable_if_t<is_uniform_sampling_v<DDim>, typename DDim::discrete_element_type>
-        front() noexcept
+template <class CDim>
+DDC_INLINE_FUNCTION typename UniformPointSampling<CDim>::continuous_element_type front(
+        global_discrete_space_id<UniformPointSampling<CDim>> dim) noexcept
 {
-    return discrete_space<DDim>().front();
+    return dim->front();
 }
 
 /// @brief Spacing step of the mesh
-template <class DDim>
-DDC_INLINE_FUNCTION std::
-        enable_if_t<is_uniform_sampling_v<DDim>, typename DDim::continuous_element_type>
-        step() noexcept
+template <class CDim>
+DDC_INLINE_FUNCTION typename UniformPointSampling<CDim>::continuous_element_type step(
+        global_discrete_space_id<UniformPointSampling<CDim>> dim) noexcept
 {
-    return discrete_space<DDim>().step();
+    return dim->step();
 }
 
 template <class CDim>
 DDC_INLINE_FUNCTION constexpr Coordinate<CDim> coordinate(
-        DiscreteElement<UniformPointSampling<CDim>> const& c)
+        DiscreteElement<global_discrete_space_id<UniformPointSampling<CDim>>> const& c)
 {
-    return discrete_space<UniformPointSampling<CDim>>().coordinate(c);
+    c.dimension()->coordinate(c);
 }
 
 template <class CDim>

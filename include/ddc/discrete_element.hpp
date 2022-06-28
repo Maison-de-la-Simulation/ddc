@@ -7,6 +7,7 @@
 #include <ostream>
 #include <utility>
 
+#include "ddc/detail/tag_map.hpp"
 #include "ddc/detail/type_seq.hpp"
 #include "ddc/discrete_vector.hpp"
 
@@ -185,6 +186,12 @@ public:
     {
         m_values = std::move(other.m_values);
         return *this;
+    }
+
+    template <size_t size = size(), class = std::enable_if_t<size == 1>>
+    auto dimension() const
+    {
+        return (Tags() && ...);
     }
 
     template <class QueryTag>

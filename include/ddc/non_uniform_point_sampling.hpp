@@ -140,7 +140,7 @@ template <class CDim>
 DDC_INLINE_FUNCTION Coordinate<CDim> coordinate(
         DiscreteElement<NonUniformPointSampling<CDim>> const& c)
 {
-    return discrete_space<NonUniformPointSampling<CDim>>().coordinate(c);
+    c.dimension()->coordinate(c);
 }
 
 template <class CDim>
