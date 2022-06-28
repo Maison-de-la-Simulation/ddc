@@ -58,7 +58,7 @@ auto extract_after(Tuple&& t, std::index_sequence<Ids...>)
 template <class IDim>
 void init_discrete_space_devices()
 {
-    using IDimImplHost = typename IDim::template Impl<Kokkos::HostSpace>;
+    using IDimImplHost [[maybe_unused]] = typename IDim::template Impl<Kokkos::HostSpace>;
 #if defined(__CUDACC__)
     using IDimImplDevice = typename IDim::template Impl<Kokkos::CudaSpace>;
     g_discrete_space_host<IDimImplDevice> = new IDimImplDevice(
