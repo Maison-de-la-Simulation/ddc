@@ -222,7 +222,7 @@ public:
      * @return the domain on which this chunk is defined
      */
     template <class... QueryDDims>
-    constexpr DiscreteDomain<QueryDDims...> domain() const noexcept
+    constexpr DiscreteDomain<QueryDDims...> domain(QueryDDims const&... dims) const noexcept
     {
         return select<QueryDDims...>(domain());
     }

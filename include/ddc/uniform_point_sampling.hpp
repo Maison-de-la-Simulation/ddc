@@ -163,51 +163,6 @@ public:
      * @param a coordinate of the first point of the domain
      * @param b coordinate of the last point of the domain
      * @param n the number of points to map the segment \f$[a, b]\f$ including a & b
-     * @param n_ghosts_before number of additional "ghost" points before the segment
-     * @param n_ghosts_after number of additional "ghost" points after the segment
-     */
-    static std::tuple<
-            Impl<Kokkos::HostSpace>,
-            discrete_domain_type,
-            discrete_domain_type,
-            discrete_domain_type,
-            discrete_domain_type>
-    init_ghosted(
-            continuous_element_type a,
-            continuous_element_type b,
-            discrete_vector_type n,
-            discrete_vector_type n_ghosts_before,
-            discrete_vector_type n_ghosts_after)
-    {
-        using continuous_element_type = continuous_element_type;
-        using discrete_domain_type = discrete_domain_type;
-        assert(a < b);
-        assert(n > 1);
-        continuous_element_type discretization_step {(b - a) / (n - 1)};
-        Impl<Kokkos::HostSpace>
-                disc(a - n_ghosts_before.value() * discretization_step, discretization_step);
-        discrete_domain_type ghosted_domain
-                = discrete_domain_type(disc.front(), n + n_ghosts_before + n_ghosts_after);
-        discrete_domain_type pre_ghost
-                = discrete_domain_type(ghosted_domain.front(), n_ghosts_before);
-        discrete_domain_type main_domain
-                = discrete_domain_type(ghosted_domain.front() + n_ghosts_before, n);
-        discrete_domain_type post_ghost
-                = discrete_domain_type(main_domain.back() + 1, n_ghosts_after);
-        return std::make_tuple(
-                std::move(disc),
-                std::move(main_domain),
-                std::move(ghosted_domain),
-                std::move(pre_ghost),
-                std::move(post_ghost));
-    }
-
-    /** Construct a uniform `DiscreteDomain` from a segment \f$[a, b] \subset [a, +\infty[\f$ and a
-     *  number of points `n`.
-     *
-     * @param a coordinate of the first point of the domain
-     * @param b coordinate of the last point of the domain
-     * @param n the number of points to map the segment \f$[a, b]\f$ including a & b
      * @param n_ghosts number of additional "ghost" points before and after the segment
      */
     static std::tuple<
@@ -225,6 +180,50 @@ public:
         return init_ghosted(a, b, n, n_ghosts, n_ghosts);
     }
 };
+
+/** Construct a uniform `DiscreteDomain` from a segment \f$[a, b] \subset [a, +\infty[\f$ and a
+     *  number of points `n`.
+     *
+     * @param a coordinate of the first point of the domain
+     * @param b coordinate of the last point of the domain
+     * @param n the number of points to map the segment \f$[a, b]\f$ including a & b
+     * @param n_ghosts_before number of additional "ghost" points before the segment
+     * @param n_ghosts_after number of additional "ghost" points after the segment
+     */
+template <class CDim, class Tag>
+static std::tuple<
+        UniformPointSampling<CDim>::typename Impl<Kokkos::HostSpace>,
+        DiscreteDomain<UniformPointSampling<CDim>>,
+        DiscreteDomain<UniformPointSampling<CDim>>,
+        DiscreteDomain<UniformPointSampling<CDim>>,
+        DiscreteDomain<UniformPointSampling<CDim>>>
+init_ghosted(
+        Coordinate<CDim> a,
+        Coordinate<CDim> b,
+        DiscreteVector<UniformPointSampling> n,
+        DiscreteVector<UniformPointSampling> n_ghosts_before,
+        DiscreteVector<UniformPointSampling> n_ghosts_after)
+{
+    using continuous_element_type = Coordinate<CDim>;
+    using discrete_domain_type = DiscreteDomain<UniformPointSampling>;
+    assert(a < b);
+    assert(n > 1);
+    continuous_element_type discretization_step {(b - a) / (n - 1)};
+    Impl<Kokkos::HostSpace>
+            disc(a - n_ghosts_before.value() * discretization_step, discretization_step);
+    discrete_domain_type ghosted_domain
+            = discrete_domain_type(disc.front(), n + n_ghosts_before + n_ghosts_after);
+    discrete_domain_type pre_ghost = discrete_domain_type(ghosted_domain.front(), n_ghosts_before);
+    discrete_domain_type main_domain
+            = discrete_domain_type(ghosted_domain.front() + n_ghosts_before, n);
+    discrete_domain_type post_ghost = discrete_domain_type(main_domain.back() + 1, n_ghosts_after);
+    return std::make_tuple(
+            std::move(disc),
+            std::move(main_domain),
+            std::move(ghosted_domain),
+            std::move(pre_ghost),
+            std::move(post_ghost));
+}
 
 template <class>
 struct is_uniform_sampling : public std::false_type

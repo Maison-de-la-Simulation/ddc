@@ -15,25 +15,29 @@
 //! [X-dimension]
 /// Our first continuous dimension
 struct X;
+using CoordX = Coordinate<X>;
 //! [X-dimension]
 
 //! [X-discretization]
 /// A uniform discretization of X
-using DDimX = UniformPointSampling<X>;
+using DDimX = global_discrete_space_id<UniformPointSampling<X>, struct DDimXTag>;
+using DElemX = DiscreteElement<DDimX>;
+using DVectX = DiscreteVector<DDimX>;
 //! [X-discretization]
 
 //! [Y-space]
 // Our second continuous dimension
 struct Y;
 // Its uniform discretization
-using DDimY = UniformPointSampling<Y>;
+using DDimY = global_discrete_space_id<UniformPointSampling<Y>, struct DDimYTag>;
+using DElemY = DiscreteElement<DDimY>;
+using DVectY = DiscreteVector<DDimY>;
 //! [Y-space]
 
 //! [time-space]
 // Our simulated time dimension
-struct T;
 // Its uniform discretization
-using DDimT = UniformPointSampling<T>;
+using DDimT = global_discrete_space_id<UniformPointSampling<struct T>, struct DDimTTag>;
 //! [time-space]
 
 
@@ -114,7 +118,7 @@ int main(int argc, char** argv)
     // Initialization of the global domain in X with gwx ghost points on
     // each side
     auto const [x_domain, ghosted_x_domain, x_pre_ghost, x_post_ghost]
-            = init_discrete_space(DDimX::init_ghosted(
+            = DDimX::init(init_ghosted(
                     Coordinate<X>(x_start),
                     Coordinate<X>(x_end),
                     DiscreteVector<DDimX>(nb_x_points),
